@@ -36,14 +36,14 @@ FORMAT
 # File Rules - Build targets (alphabetical)
 # ========================================
 
-desc 'Build C implementation with optimization'
+desc 'Build C implementation with optimization and static linking'
 file 'fib_42_c' => 'fib_42_c.c' do
-  sh 'gcc fib_42_c.c -o fib_42_c -O3'
+  sh 'gcc fib_42_c.c -o fib_42_c -O3 -static -flto'
 end
 
-desc 'Build Crystal implementation in release mode'
+desc 'Build Crystal implementation in release mode with static linking'
 file 'fib_42_crystal' => 'fib_42_crystal.cr' do
-  sh 'crystal build fib_42_crystal.cr -o fib_42_crystal --release'
+  sh 'crystal build fib_42_crystal.cr -o fib_42_crystal --release --static --no-debug'
 end
 
 desc 'Build Java implementation'
@@ -51,9 +51,9 @@ file 'fib_42_java.class' => 'fib_42_java.java' do
   sh 'javac fib_42_java.java'
 end
 
-desc 'Build Rust implementation with optimization'
+desc 'Build Rust implementation with optimization and static linking'
 file 'fib_42_rust' => 'fib_42_rust.rs' do
-  sh 'rustc fib_42_rust.rs -o fib_42_rust -O'
+  sh 'rustc fib_42_rust.rs -o fib_42_rust -C opt-level=3 -C lto=fat -C prefer-dynamic=no'
 end
 
 desc 'Build Scala implementation with scala-cli'
