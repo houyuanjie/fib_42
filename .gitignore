@@ -1,0 +1,14 @@
+# Compiled binaries
+fib_42_c
+fib_42_crystal
+fib_42_rust
+
+# Compiled Java/Scala
+fib_42_java.class
+fib_42_scala.jar
+
+# Scala build directory
+.scala-build/
+
+# Scala-CLI BSP directory
+.bsp/
