@@ -5,9 +5,10 @@
 ## 支持的编程语言
 
 - **C** - 编译型语言
-- **Crystal** - 编译型语言，Ruby 语法风格
+
 - **Java** - JVM 语言
 - **JavaScript** - 使用 Bun 运行时
+- **Python** - 解释型语言
 - **Ruby** - 解释型语言
 - **Rust** - 编译型系统语言
 - **Scala** - JVM 函数式语言
@@ -31,9 +32,9 @@ rake time:all
 | 语言 | 构建命令 | 测试命令 |
 |------|---------|---------|
 | C | `rake build:c` | `rake time:c` |
-| Crystal | `rake build:crystal` | `rake time:crystal` |
 | Java | `rake build:java` | `rake time:java` |
 | JavaScript | - | `rake time:javascript` |
+| Python | - | `rake time:python` |
 | Ruby | - | `rake time:ruby` |
 | Rust | `rake build:rust` | `rake time:rust` |
 | Scala | `rake build:scala` | `rake time:scala` |
@@ -56,9 +57,10 @@ rake -T
 .
 ├── Rakefile                      # 构建和测试脚本
 ├── fib_42_c.c                    # C 实现
-├── fib_42_crystal.cr             # Crystal 实现
+
 ├── fib_42_java.java              # Java 实现
 ├── fib_42_javascript.js          # JavaScript 实现
+├── fib_42_python.py              # Python 实现
 ├── fib_42_ruby.rb                # Ruby 实现
 ├── fib_42_rust.rs                # Rust 实现
 └── fib_42_scala.scala            # Scala 实现
@@ -69,11 +71,9 @@ rake -T
 所有编译型语言均使用各自的最高优化级别和静态链接以确保公平对比：
 
 - **C**: `gcc -O3 -static -flto`（最高优化级别 + 静态链接 + 链接时优化）
-- **Crystal**: `crystal build --release --static`（最高优化级别 + 静态链接，等同于 `-O3 --single-module`）
-  > 注意：Crystal 不支持传统 LTO，但 `--release` 模式使用 `--single-module` 将所有代码编译为单个 LLVM 模块，提供跨模块优化效果
 - **Rust**: `rustc -C opt-level=3 -C lto=fat -C prefer-dynamic=no`（最高优化级别 + 链接时优化 + 静态链接）
 
-所有实现都使用 `-O3` 级别的优化和静态链接。C 和 Rust 支持 LTO（链接时优化），Crystal 使用 `--single-module` 机制实现类似效果。
+所有实现都使用 `-O3` 级别的优化和静态链接。C 和 Rust 支持 LTO（链接时优化）。
 
 ## 性能指标
 
@@ -87,79 +87,80 @@ rake -T
 
 ## 测试结果
 
-测试环境：Linux x86_64，计算 fib(42) = 267914296
+测试环境：Linux x86_64，计算 fib(42) = 267914296，测试日期：2026-02-08
 
 ### 执行时间对比
 
 | 排名 | 语言 | 执行时间 | 相对速度 |
 |:----:|------|:--------:|:--------:|
-| 🥇 | **C** | 0.30s | 1.0x (基准) |
-| 🥈 | **Rust** | 0.45s | 1.5x |
-| 🥉 | **Java** | 0.75s | 2.5x |
-| 4 | **Crystal** | 0.83s | 2.8x |
-| 5 | **Scala** | 0.87s | 2.9x |
-| 6 | **JavaScript** | 1.30s | 4.3x |
-| 7 | **Ruby** | 22.33s | 74.4x |
+| 🥇 | **C** | 0.31s | 1.0x (基准) |
+| 🥈 | **Rust** | 0.46s | 1.5x |
+| 🥉 | **Java** | 0.74s | 2.4x |
+| 4 | **Scala** | 0.88s | 2.8x |
+| 5 | **JavaScript** | 1.43s | 4.6x |
+| 6 | **Python** | 19.80s | 63.9x |
+| 7 | **Ruby** | 25.86s | 83.4x |
 
 ### 内存使用对比
 
 | 排名 | 语言 | 最大内存 | 内存占用 |
 |:----:|------|:--------:|:--------:|
-| 🥇 | **C** | 684 KB | 极低 |
-| 🥈 | **Rust** | 1,896 KB | 极低 |
-| 🥉 | **Crystal** | 2,016 KB | 低 |
-| 4 | **Ruby** | 15,584 KB | 中等 |
-| 5 | **JavaScript** | 39,508 KB | 较高 |
-| 6 | **Java** | 40,808 KB | 较高 |
-| 7 | **Scala** | 67,436 KB | 高 |
+| 🥇 | **C** | 704 KB | 极低 |
+| 🥈 | **Rust** | 1,948 KB | 极低 |
+| 🥉 | **Python** | 11,780 KB | 中等 |
+| 4 | **Ruby** | 15,816 KB | 中等 |
+| 5 | **JavaScript** | 39,012 KB | 较高 |
+| 6 | **Java** | 41,180 KB | 较高 |
+| 7 | **Scala** | 67,556 KB | 高 |
 
 ### 完整性能数据
 
 | 语言 | 执行时间 | 内存使用 | 页面错误 | 上下文切换 |
 |------|:--------:|:--------:|:--------:|:----------:|
-| C | 0.30s | 684 KB | 53 | 3 |
-| Rust | 0.45s | 1,896 KB | 98 | 36 |
-| Crystal | 0.83s | 2,016 KB | 254 | 15 |
-| Java | 0.75s | 40,808 KB | 5,106 | 152 |
-| Scala | 0.87s | 67,436 KB | 11,284 | 1,909 |
-| JavaScript | 1.30s | 39,508 KB | 2,602 | 133 |
-| Ruby | 22.33s | 15,584 KB | 2,148 | 1,179 |
+| C | 0.31s | 704 KB | 54 | 12 |
+| Rust | 0.46s | 1,948 KB | 98 | 17 |
+| Java | 0.74s | 41,180 KB | 5,105 | 166 |
+| Scala | 0.88s | 67,556 KB | 11,280 | 1,800 |
+| JavaScript | 1.43s | 39,012 KB | 2,744 | 572 |
+| Python | 19.80s | 11,780 KB | 951 | 489 |
+| Ruby | 25.86s | 15,816 KB | 2,150 | 236 |
 
 ## 总结与评价
 
 ### 🏆 性能冠军
 
 **C 语言**表现最为出色：
-- 执行速度最快（0.30秒）
-- 内存占用最低（684 KB）
+- 执行速度最快（0.31秒）
+- 内存占用最低（704 KB）
 - 系统资源消耗最少
 
 **Rust**紧随其后：
-- 速度仅次于 C（0.45秒）
+- 速度仅次于 C（0.46秒）
 - 内存效率极高（1.9 MB）
 - 提供内存安全保障的同时保持高性能
 
 ### 📊 分类对比
 
-**编译型语言（C、Rust、Crystal）**：
-- 执行速度极快（0.30s - 0.83s）
+**编译型语言（C、Rust）**：
+- 执行速度极快（0.30s - 0.45s）
 - 内存占用低（684 KB - 2 MB）
 - 适合对性能要求高的场景
 
 **JVM 语言（Java、Scala）**：
-- 执行速度中等（0.75s - 0.87s）
-- JVM 启动开销较大，内存占用高（41 MB - 67 MB）
+- 执行速度中等（0.74s - 0.88s）
+- JVM 启动开销较大，内存占用高（41 MB - 68 MB）
 - 页面错误和上下文切换频繁
 
-**解释型/运行时语言（JavaScript、Ruby）**：
-- JavaScript 使用 Bun 运行时表现尚可（1.30s）
-- **Ruby 性能明显落后**（22.33秒，比其他语言慢 25-74 倍）
+**解释型/运行时语言（JavaScript、Python、Ruby）**：
+- JavaScript 使用 Bun 运行时表现尚可（1.43s）
+- Python 性能中等（19.80秒，比 Ruby 快 23%）
+- **Ruby 性能明显落后**（25.86秒，比其他语言慢 30-83 倍）
 - 适合快速原型开发，不适合计算密集型任务
 
 ### 💡 结论
 
 1. **追求极致性能**：选择 C 或 Rust
-2. **平衡性能与开发效率**：选择 Crystal（接近 C 的性能，Ruby 的语法）
+2. **平衡性能与开发效率**：选择 Rust（提供内存安全的同时保持高性能）
 3. **企业级应用**：JVM 语言（Java/Scala）虽然启动慢，但运行性能可接受
 4. **避免使用**：Ruby 不适合递归计算密集型任务
 

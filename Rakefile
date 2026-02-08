@@ -41,10 +41,6 @@ file 'fib_42_c' => 'fib_42_c.c' do
   sh 'gcc fib_42_c.c -o fib_42_c -O3 -static -flto'
 end
 
-desc 'Build Crystal implementation in release mode with static linking'
-file 'fib_42_crystal' => 'fib_42_crystal.cr' do
-  sh 'crystal build fib_42_crystal.cr -o fib_42_crystal --release --static --no-debug'
-end
 
 desc 'Build Java implementation'
 file 'fib_42_java.class' => 'fib_42_java.java' do
@@ -69,9 +65,6 @@ namespace :build do
   desc 'Build C implementation'
   task c: %i[fib_42_c]
 
-  desc 'Build Crystal implementation'
-  task crystal: %i[fib_42_crystal]
-
   desc 'Build Java implementation'
   task java: %i[fib_42_java.class]
 
@@ -81,8 +74,8 @@ namespace :build do
   desc 'Build Scala implementation'
   task scala: %i[fib_42_scala.jar]
 
-  desc 'Build all compiled implementations (C, Crystal, Java, Rust, Scala)'
-  task all: %i[c crystal java rust scala]
+  desc 'Build all compiled implementations (C, Java, Rust, Scala)'
+  task all: %i[c java rust scala]
 end
 
 # ========================================
@@ -97,13 +90,6 @@ namespace :time do
     puts '===== end C ====='
   end
 
-  desc 'Time Crystal implementation'
-  task crystal: %i[fib_42_crystal] do
-    puts '===== start Crystal ====='
-    sh "/usr/bin/time -f \"#{TIME_FORMAT}\" ./fib_42_crystal", verbose: false
-    puts '===== end Crystal ====='
-  end
-
   desc 'Time Java implementation'
   task java: %i[fib_42_java.class] do
     puts '===== start Java ====='
@@ -116,6 +102,13 @@ namespace :time do
     puts '===== start JavaScript ====='
     sh "/usr/bin/time -f \"#{TIME_FORMAT}\" bun run fib_42_javascript.js", verbose: false
     puts '===== end JavaScript ====='
+  end
+
+  desc 'Time Python implementation'
+  task python: 'fib_42_python.py' do
+    puts '===== start Python ====='
+    sh "/usr/bin/time -f \"#{TIME_FORMAT}\" python3 fib_42_python.py", verbose: false
+    puts '===== end Python ====='
   end
 
   desc 'Time Ruby implementation'
@@ -140,7 +133,7 @@ namespace :time do
   end
 
   desc 'Time all implementations'
-  task all: %i[c crystal java javascript ruby rust scala]
+  task all: %i[c java javascript python ruby rust scala]
 end
 
 # ========================================
@@ -150,7 +143,7 @@ end
 namespace :clean do
   desc 'Remove compiled artifacts'
   task :all do
-    rm_f %w[fib_42_c fib_42_crystal fib_42_java.class fib_42_rust fib_42_scala.jar]
+    rm_f %w[fib_42_c fib_42_java.class fib_42_rust fib_42_scala.jar]
   end
 end
 
